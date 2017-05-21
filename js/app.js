@@ -1,20 +1,22 @@
 // Enemies our player must avoid
 var Enemy = function(x, y, speed) {
+    this.x = x;
+    this.y = y;
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
 
-    this.x = x;
-    this.y = y;
-
+    this.sprite = 'images/enemy-bug.png';
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
-    this.sprite = 'images/enemy-bug.png';
-
-    this.boxWidth = 98;
-    this.boxHeight = 67;
 
     this.speed = Math.floor((Math.random()*1000));
     //TODO: change speed for easy, medium, hard
+
+    this.boxWidth = 98;
+    this.boxHeight = 67;
+    //collision box height and width.
+
+    this.spriteImageYOffset = 77;
 
     this.hitbox = {x:this.x, y:this.y, width:this.boxWidth, height:this.boxHeight};
 };
@@ -22,17 +24,17 @@ var Enemy = function(x, y, speed) {
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
+    this.x += (this.speed * dt); 
+    this.makeHitBox();
+    this.render();
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-    this.x += (this.speed*dt); 
-    this.makeHitBox();
-    this.render();
 };
 
 Enemy.prototype.makeHitBox = function(){
     this.hitbox.x = this.x;
-    this.hitbox.y = this.y+77;
+    this.hitbox.y = this.y + this.spriteImageYOffset;
 };
 
 Enemy.prototype.drawHitBox = function (x, y, width, height, color) {
@@ -47,7 +49,7 @@ Enemy.prototype.drawHitBox = function (x, y, width, height, color) {
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-    this.drawHitBox(this.hitbox.x, this.y+77, this.boxWidth, this.boxHeight, "transparent");
+    this.drawHitBox(this.hitbox.x, this.y + this.spriteImageYOffset, this.boxWidth, this.boxHeight, "transparent");
 };
 
 // Now write your own player class
@@ -62,13 +64,17 @@ var Player = function() {
     this.y = playerOriginYCoord;
     this.boxWidth = 65;
     this.boxHeight = 79;
+
     var spriteImageXOffset = 18;
     this.boxXvalue = this.x + spriteImageXOffset;
+    //collision box x value.
+
     var spriteImageYOffset = 61;
     this.boxYvalue = this.y + spriteImageYOffset;
-    var movementIncrement = 100;
+    //collision box y value.
 
-        //ctx.clearRect(0,0,505,606);
+    var movementIncrement = 100;
+    //amount to increment movement when key is pressed.
 
     this.update = function() {
         this.updateHitbox();
@@ -86,7 +92,7 @@ var Player = function() {
                 currentEnemy.x + currentEnemy.boxWidth > player.x &&
                 currentEnemy.y < player.y + player.boxHeight &&
                 currentEnemy.boxHeight + currentEnemy.y > player.y) {
-                player.reset();
+                    player.reset();
             }
         }
     };
@@ -139,7 +145,7 @@ var Player = function() {
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
-//TODO: change # of enemies for easy, medium, hard
+// TODO: change # of enemies for easy, medium, hard
 
 var allEnemies = [new Enemy(0, 0, 100), new Enemy(0, 100, 50), new Enemy(0, 200, 150)];
 function pushThreeEnemies() {
@@ -148,6 +154,7 @@ function pushThreeEnemies() {
     allEnemies.push(new Enemy(0, 200, 150));
 }
 window.setInterval(pushThreeEnemies, 3000);
+//add enemies to the array so they show up on screen.
 
 function removeOffScreenEnemies() {
     for(var i=0; i<allEnemies.length; i++) {
@@ -157,6 +164,7 @@ function removeOffScreenEnemies() {
     }
 }
 window.setInterval(removeOffScreenEnemies, 10000);
+//remove enemies that are no longer in use, so that array doesn't grow too big.
 
 // Place the player object in a variable called player
 var player = new Player();
