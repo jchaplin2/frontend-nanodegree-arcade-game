@@ -11,7 +11,7 @@
         // The image/sprite for our enemies, this uses
         // a helper we've provided to easily load images
 
-        this.speed = Math.floor((Math.random()*700));
+        this.speed = Math.floor((Math.random()*200));
         //TODO: change speed for easy, medium, hard
         //Easy : 200
         //Medium : 700
@@ -66,6 +66,11 @@
     // a handleInput() method.
 
     var Player = function() {
+        var MIN_ROW_POS = -10;
+        var MAX_ROW_POS = 430;
+        var MIN_COL_POS = -10;
+        var MAX_COL_POS = 420;
+
         this.sprite = 'images/char-boy.png';
         var playerOriginXCoord = 200;
         this.x = playerOriginXCoord;
@@ -85,12 +90,27 @@
         var movementIncrement = 100;
         //amount to increment movement when key is pressed.
 
-        var MIN_ROW_POS = -10;//x
-        var MAX_ROW_POS = 430;
+        //Score and styles
+        this.score = 0;
+        this.labelColor = '#777';
+        this.scoreColor = '#000';
+        this.labelFont = '12pt Tahoma, sans-serif';
+        this.scoreFont = '16pt Tahoma, sans-serif';
+        this.scoreLabel = 'Score: ';
+        this.scoreLabelX = Math.floor(2.5 * 100); //x location to render
+        this.scoreLabelY = 0; //y location to render
 
-        var MIN_COL_POS = -10; //y
-        var MAX_COL_POS = 420;
-
+        this.getScore = function() {
+            return this.score;
+        };
+        this.incrementScore = function(value) {
+            ctx.font = this.scoreFont;
+            ctx.fillStyle = "#FFF";
+            var scoreText = this.scoreLabel + this.score;
+            ctx.fillText(scoreText, 10, 50);  //score
+            this.score += value;
+            this.renderScores();
+        };
         this.update = function() {
             this.updateHitbox();
             this.checkCollisions();
@@ -114,12 +134,19 @@
             //if stepped on a gem:
             if (gem.isVisible && gem.y === this.y && gem.x == this.x) {
                 gem.isVisible = false;  //no longer render the gem
+                this.incrementScore(10);
                 gem.spawn();
             }
         };
         this.render = function() {
             ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
             //this.drawHitBox(this.boxXvalue, this.boxYvalue, this.boxWidth, this.boxHeight, "transparent");
+        };
+        this.renderScores = function() {
+            ctx.fillStyle = this.scoreColor;
+            ctx.font = this.scoreFont;
+            var scoreText = this.scoreLabel + this.score;
+            ctx.fillText(scoreText, 10, 50);  //score
         };
 /*
         this.drawHitBox = function (x, y, width, height, color) {
@@ -140,6 +167,7 @@
             if(yCoord > MAX_COL_POS) {
                 return;
             } else if (yCoord < MIN_ROW_POS) {
+                player.incrementScore(20);
                 player.reset();
                 return;
             }
