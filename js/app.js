@@ -130,10 +130,10 @@ var play = false; //Whether the game has begun; used to trigger character select
             for(var i=0; i<allEnemies.length; i++) {
                 var currentEnemy = allEnemies[i];
 
-                if (currentEnemy.x < player.x + player.boxWidth &&
-                    currentEnemy.x + currentEnemy.boxWidth > player.x &&
-                    currentEnemy.y < player.y + player.boxHeight &&
-                    currentEnemy.boxHeight + currentEnemy.y > player.y) {
+                if (currentEnemy.x < this.x + this.boxWidth &&
+                    currentEnemy.x + currentEnemy.boxWidth > this.x &&
+                    currentEnemy.y < this.y + this.boxHeight &&
+                    currentEnemy.boxHeight + currentEnemy.y > this.y) {
                         this.reset();
                 }
             }
@@ -174,8 +174,8 @@ var play = false; //Whether the game has begun; used to trigger character select
             if(yCoord > MAX_COL_POS) {
                 return;
             } else if (yCoord < MIN_ROW_POS) {
-                player.incrementScore(20);
-                player.reset();
+                this.incrementScore(20);
+                this.reset();
                 return;
             }
 
