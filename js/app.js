@@ -1,3 +1,5 @@
+var play = false; //Whether the game has begun; used to trigger character selector screen
+
 (function(global) {
     "use strict"
     // Enemies our player must avoid
@@ -11,12 +13,15 @@
         // The image/sprite for our enemies, this uses
         // a helper we've provided to easily load images
 
-        this.speed = Math.floor((Math.random()*200));
-        //TODO: change speed for easy, medium, hard
-        //Easy : 200
-        //Medium : 700
-        //Hard : 1000
-        //X-Treme : 1200
+        this.difficultyMenuSettings = {
+            "easy" : 200,
+            "medium" : 700,
+            "hard" : 1000,
+            "X-treme!" : 1200,
+        };
+
+        this.speed = Math.floor((Math.random() * 200));
+        //TODO:would like to make speed dependent on difficultyMenuSettings.
 
         this.boxWidth = 98;
         this.boxHeight = 67;
@@ -72,6 +77,8 @@
         var MAX_COL_POS = 420;
 
         this.sprite = 'images/char-boy.png';
+        //TODO:would like to sprite dependent on character selection.
+
         var playerOriginXCoord = 200;
         this.x = playerOriginXCoord;
         var playerOriginYCoord = 400;
@@ -206,10 +213,10 @@
     function keyHandler(eventObject) {
         var eventObject = window.event;
         var allowedKeys = {
-            37: 'left',
-            38: 'up',
-            39: 'right',
-            40: 'down'
+            37 : 'left',
+            38 : 'up',
+            39 : 'right',
+            40 : 'down'
         };
 
         var keyDirection = allowedKeys[eventObject.keyCode];
@@ -283,6 +290,7 @@
      * object when run in a browser) so that developers can use it more easily
      * from within their app.js files.
      */
+
     global.allEnemies = allEnemies;
     global.player = player;
     global.gem = gem;

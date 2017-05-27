@@ -23,7 +23,35 @@ var Engine = (function(global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
-        lastTime;
+        lastTime, difficultyMenuSettings, characterImgArray, difficulty;
+
+    difficultyMenuArray = [
+            "easy",
+            "medium",
+            "hard",
+            "X-treme!",
+    ];
+
+    characterImgArray = [{
+            name:"boy",
+            src:"images/char-boy.png"
+        },{
+            name:"cat-girl",
+            src:"images/char-cat-girl.png"
+        },{
+            name:"horn-girl",
+            src:"images/char-horn-girl.png"
+        },{
+            name:"pink-girl",
+            src:"images/char-pink-girl.png"
+        },{
+            name:"princess-girl",
+            src:"images/char-princess-girl.png"
+        }
+    ];
+
+    canvas.setAttribute("id", "gameCanvas");
+    canvas.setAttribute("style", "display:none");
 
     canvas.width = 505;
     canvas.height = 606;
@@ -59,6 +87,69 @@ var Engine = (function(global) {
         win.requestAnimationFrame(main);
     }
 
+    function makeDifficultyMenu() {
+        var selectionsMenu = window.document.createElement("form");
+        selectionsMenu.setAttribute("id", "selectionsMenu");
+        window.document.body.appendChild(selectionsMenu);
+
+        var menuDiv = window.document.createElement("div");
+        menuDiv.setAttribute("id", "difficultyMenu");
+
+        for(var i=0; i<difficultyMenuArray.length; i++) {
+            var menuItem = difficultyMenuArray[i];
+            makeButton(menuItem, menuDiv, function() {
+                difficulty = menuItem;
+            });
+        }
+
+        var selectionsMenu = window.document.getElementById("selectionsMenu");
+        selectionsMenu.appendChild(menuDiv);
+        selectionsMenu.addEventListener('submit', function(){window.event.preventDefault()});
+    };
+    function makeButton(buttonStr, menuDiv, fnObj) {
+        var button = window.document.createElement("button");
+        button.innerText = buttonStr;
+        button.setAttribute("class", "menuButton");
+        button.addEventListener("click", fnObj, false);
+        menuDiv.appendChild(button);
+    };
+    function addCharacterOptionMenu() {
+        var menuDiv = window.document.createElement("ul");
+        menuDiv.setAttribute("id", "characterMenu");
+
+        for(var i=0; i<characterImgArray.length; i++) {
+            addCharacterOption(characterImgArray[i], menuDiv);
+        }
+
+        window.document.getElementById("selectionsMenu").appendChild(menuDiv);
+    }
+    function addCharacterOption(charItem, menuDiv) {
+        var menuItem = window.document.createElement("li");
+        menuItem.setAttribute("class", "menuItem");
+        var radioButton = '<input name="characterSelect" type="radio" />';
+        menuItem.innerHTML = radioButton;
+        var button = window.document.createElement("img");
+        button.setAttribute("src", charItem.src);
+        button.setAttribute("id", charItem.name);
+        menuItem.appendChild(button);
+        menuDiv.appendChild(menuItem);  
+    };
+
+    function createMenu() {
+        makeDifficultyMenu();
+        addCharacterOptionMenu();
+
+        var startDiv = window.document.createElement("div");
+        startDiv.setAttribute("id", "startMenu");    
+        makeButton("Start Game!", startDiv, startGame);
+        window.document.getElementById("selectionsMenu").appendChild(startDiv);
+    }
+
+    function startGame() {
+        window.document.getElementById("gameCanvas").style.display="";
+        play = true;
+    }
+
     /* This function does some initial setup that should only occur once,
      * particularly setting the lastTime variable that is required for the
      * game loop.
@@ -67,6 +158,7 @@ var Engine = (function(global) {
         reset();
         lastTime = Date.now();
         main();
+        createMenu();
     }
 
     /* This function is called by main (our game loop) and itself calls all
@@ -90,10 +182,12 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-        allEnemies.forEach(function(enemy) {
-            enemy.update(dt);
-        });
-        player.update();
+        if(play === true) {
+            allEnemies.forEach(function(enemy) {
+             enemy.update(dt);
+            });
+            player.update();
+        }
     }
 
     /* This function initially draws the "game level", it will then call
@@ -103,39 +197,41 @@ var Engine = (function(global) {
      * they are just drawing the entire screen over and over.
      */
     function render() {
-        /* This array holds the relative URL to the image used
-         * for that particular row of the game level.
-         */
-        var rowImages = [
-                'images/water-block.png',   // Top row is water
-                'images/stone-block.png',   // Row 1 of 3 of stone
-                'images/stone-block.png',   // Row 2 of 3 of stone
-                'images/stone-block.png',   // Row 3 of 3 of stone
-                'images/grass-block.png',   // Row 1 of 2 of grass
-                'images/grass-block.png'    // Row 2 of 2 of grass
-            ],
-            numRows = 6,
-            numCols = 5,
-            row, col;
+        if(play === true) {
+            /* This array holds the relative URL to the image used
+             * for that particular row of the game level.
+             */
+            var rowImages = [
+                    'images/water-block.png',   // Top row is water
+                    'images/stone-block.png',   // Row 1 of 3 of stone
+                    'images/stone-block.png',   // Row 2 of 3 of stone
+                    'images/stone-block.png',   // Row 3 of 3 of stone
+                    'images/grass-block.png',   // Row 1 of 2 of grass
+                    'images/grass-block.png'    // Row 2 of 2 of grass
+                ],
+                numRows = 6,
+                numCols = 5,
+                row, col;
 
-        /* Loop through the number of rows and columns we've defined above
-         * and, using the rowImages array, draw the correct image for that
-         * portion of the "grid"
-         */
-        for (row = 0; row < numRows; row++) {
-            for (col = 0; col < numCols; col++) {
-                /* The drawImage function of the canvas' context element
-                 * requires 3 parameters: the image to draw, the x coordinate
-                 * to start drawing and the y coordinate to start drawing.
-                 * We're using our Resources helpers to refer to our images
-                 * so that we get the benefits of caching these images, since
-                 * we're using them over and over.
-                 */
-                ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
+            /* Loop through the number of rows and columns we've defined above
+             * and, using the rowImages array, draw the correct image for that
+             * portion of the "grid"
+             */
+            for (row = 0; row < numRows; row++) {
+                for (col = 0; col < numCols; col++) {
+                    /* The drawImage function of the canvas' context element
+                     * requires 3 parameters: the image to draw, the x coordinate
+                     * to start drawing and the y coordinate to start drawing.
+                     * We're using our Resources helpers to refer to our images
+                     * so that we get the benefits of caching these images, since
+                     * we're using them over and over.
+                     */
+                    ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
+                }
             }
-        }
 
-        renderEntities();
+            renderEntities();
+        }
     }
 
     /* This function is called by the render function and is called on each game
@@ -185,4 +281,5 @@ var Engine = (function(global) {
      * from within their app.js files.
      */
     global.ctx = ctx;
+    global.difficulty = difficulty;
 })(this);
