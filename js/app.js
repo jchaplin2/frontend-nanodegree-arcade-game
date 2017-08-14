@@ -50,20 +50,19 @@ var play = false; //Whether the game has begun; used to trigger character select
         this.hitbox.y = this.y + this.spriteImageYOffset;
     };
 
-/*
+    //this function draws the enemy hitbox on the screen.
     Enemy.prototype.drawHitBox = function (x, y, width, height, color) {
-        //this function puts the hitbox on the screen
         ctx.beginPath();
         ctx.rect(x, y, width, height);
         ctx.lineWidth = 1;
         ctx.strokeStyle = color;
         ctx.stroke();
     };
-*/
+
     // Draw the enemy on the screen, required method for game
     Enemy.prototype.render = function() {
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-        //this.drawHitBox(this.hitbox.x, this.y + this.spriteImageYOffset, this.boxWidth, this.boxHeight, "transparent");
+        //this.drawHitBox(this.hitbox.x, this.y + this.spriteImageYOffset, this.boxWidth, this.boxHeight, "red");
     };
 
     // Now write your own player class
@@ -155,7 +154,8 @@ var play = false; //Whether the game has begun; used to trigger character select
             var scoreText = this.scoreLabel + this.score;
             ctx.fillText(scoreText, 10, 50);  //score
         };
-/*
+
+        //this draws a hitbox around the player
         this.drawHitBox = function (x, y, width, height, color) {
             ctx.beginPath();
             ctx.rect(x, y, width, height);
@@ -163,7 +163,7 @@ var play = false; //Whether the game has begun; used to trigger character select
             ctx.strokeStyle = color;
             ctx.stroke();
         };
-*/
+
         this.reset = function() {
             this.x = playerOriginXCoord;
             this.y = playerOriginYCoord;
@@ -286,12 +286,12 @@ var play = false; //Whether the game has begun; used to trigger character select
 
     var gem = new Gem();
 
-    /* Assign the canvas' context object to the global variable (the window
-     * object when run in a browser) so that developers can use it more easily
-     * from within their app.js files.
-     */
+    //TODO : need a spot where I have a handle on ctx to call renderScores.
 
     global.allEnemies = allEnemies;
     global.player = player;
     global.gem = gem;
+    global.renderScores = function(){
+        player.renderScores.call(player);
+    };
 })(this);
